@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
 
+// 유저 생성
 app.post('/users', (req,res)=>{
   console.log(req);
   const {username} = req.body;
@@ -32,6 +33,11 @@ app.post('/users', (req,res)=>{
         res.status(error.statusCode).json(error)
       }
     })
+});
+
+app.post('/authenticate', (req,res)=>{
+  const { grant_type } = req.body;
+  res.json(chatkit.authenticate({grant_type}, req.query.user_id));
 });
 
 
