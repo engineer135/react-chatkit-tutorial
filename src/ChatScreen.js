@@ -3,6 +3,7 @@ import { ChatManager, TokenProvider } from '@pusher/chatkit';
 import MessageList from './components/MessageList';
 import SendMessageForm from './components/SendMessageForm';
 import TypingIndicator from './components/TypingIndicator';
+import WhosOnlineList from './components/WhosOnlineList';
 
 class ChatScreen extends Component {
     constructor(){
@@ -101,11 +102,27 @@ class ChatScreen extends Component {
 
     render(){
         return(
-            <div>
-                {/* <h1>Chat</h1> */}                
-                <MessageList messages={this.state.messages}/>
-                <TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping}/>
-                <SendMessageForm onSubmit={this.sendMessage} onChange={this.sendTypingEvent}/>
+            <div style={{
+                display: 'flex',
+                height: '100vh',    
+            }}>
+                <div style={{
+                    width: '30%',
+                    backgroundColor: 'tomato',
+                }}>
+                    <h2>who's online list</h2>
+                    <WhosOnlineList users={this.state.currentRoom.users}/>
+                </div>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <MessageList messages={this.state.messages}/>
+                </div>
+                <div>
+                    <TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping}/>
+                    <SendMessageForm onSubmit={this.sendMessage} onChange={this.sendTypingEvent}/>
+                </div>
             </div>
         )
     }
