@@ -35,9 +35,10 @@ app.post('/users', (req,res)=>{
     })
 });
 
+// 인증
 app.post('/authenticate', (req,res)=>{
   const { grant_type } = req.body;
-  res.json(chatkit.authenticate({grant_type}, req.query.user_id));
+  res.json(chatkit.authenticate({grant_type, userId: req.query.user_id}));
 });
 
 
