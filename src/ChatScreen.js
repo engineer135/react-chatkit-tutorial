@@ -1,12 +1,17 @@
 import React, {Component} from 'react';
 import { ChatManager, TokenProvider } from '@pusher/chatkit';
 import MessageList from './components/MessageList';
+import SendMessageForm from './components/SendMessageForm';
+import TypingIndicator from './components/TypingIndicator';
 
 class ChatScreen extends Component {
     constructor(){
         super();
         this.state = {
-            messages: []
+            messages: [],
+            currentRoom: {},
+            currentUser: {},
+            usersWhoAreTyping: [],
         }
     }
 
@@ -42,29 +47,65 @@ class ChatScreen extends Component {
         chatManager
             .connect()
             .then(currentUser => {
-                console.log(currentUser);
+                //console.log(currentUser);
+                this.setState({
+                    currentUser : currentUser
+                });
                 return currentUser.subscribeToRoom({
                  roomId:15410205, // 여기 룸아이디는, 챗킷 사이트에서 create new room 한뒤 나온 아이디를 입력해준다..
                  messageLimit:100,
                  hooks: {
                      onNewMessage: message => {
-                         console.log(message);
+                         //console.log(message);
                          this.setState({
                             messages: [...this.state.messages, message]
                          })
-                     }
+                     },
+                     onUserStartedTyping: user => {
+                          this.setState({
+                            usersWhoAreTyping: [...this.state.usersWhoAreTyping, user.name]
+                          })
+                    },
+                     onUserStoppedTyping: user => { 
+                        this.setState({
+                            usersWhoAreTyping: this.state.usersWhoAreTyping.filter((username)=>
+                                username !== user.name
+                            )
+                        })
+                    }
                  }
              })   
             })
-            .then(currentRoom => {})
+            .then(currentRoom => {
+                this.setState({
+                    currentRoom : currentRoom
+                });
+            })
             .catch(error => console.error(error));
+    }
+
+    // 텍스트 전송
+    sendMessage = (text) => {
+        this.state.currentUser.sendMessage({
+            roomId:this.state.currentRoom.id,
+            text
+        });
+    }
+
+    sendTypingEvent = (e) => {
+        console.log('sendTypingEvent...');
+        this.state.currentUser
+        .isTypingIn({roomId:this.state.currentRoom.id})
+        .catch(error => console.error('error',error));
     }
 
     render(){
         return(
             <div>
-                <h1>Chat</h1>
+                {/* <h1>Chat</h1> */}                
                 <MessageList messages={this.state.messages}/>
+                <TypingIndicator usersWhoAreTyping={this.state.usersWhoAreTyping}/>
+                <SendMessageForm onSubmit={this.sendMessage} onChange={this.sendTypingEvent}/>
             </div>
         )
     }
